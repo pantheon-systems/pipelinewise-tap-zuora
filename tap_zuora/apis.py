@@ -315,10 +315,13 @@ class Rest:
             "Query": query,
             "Format": "csv"
         }
-        resp = client.rest_request("POST", endpoint, json=payload).json()
+        try:
+            resp = client.rest_request("POST", endpoint, json=payload).json()
 
-        if resp["Success"]:
-            return "available"
+            if resp["Success"]:
+                return "available"
+        except Exception as e:
+            LOGGER.info("Error probing {}: {}".format(stream_name, e))
 
         # Should we raise an "Error probing" exception here?
         return "unavailable"

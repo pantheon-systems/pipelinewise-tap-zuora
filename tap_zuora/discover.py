@@ -33,7 +33,7 @@ def parse_field_element(field_element):
     name = field_element.find("name").text
     field_type = TYPE_MAP.get(field_element.find("type").text, None)
     required = field_element.find("required").text.lower() == "true" or name in REQUIRED_KEYS
-    contexts = [t.text for t in field_element.find("contexts").getchildren()]
+    contexts = [t.text for t in list(field_element.find("contexts"))]
     return {
         "name": name,
         "type": field_type,
@@ -48,7 +48,7 @@ def get_field_dict(client, stream_name):
     etree = ElementTree.fromstring(xml_str)
 
     field_dict = {}
-    for field_element in etree.find("fields").getchildren():
+    for field_element in list(etree.find("fields")):
         field_info = parse_field_element(field_element)
         supported = True
 
@@ -65,7 +65,7 @@ def get_field_dict(client, stream_name):
             "supported": supported
         }
 
-    for related_object in etree.find("related-objects").getchildren():
+    for related_object in list(etree.find("related-objects")):
         related_object_name = related_object.find("name").text + ".Id"
         field_dict[related_object_name] = {
             "type": "string",

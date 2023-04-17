@@ -40,28 +40,12 @@ class Client:
         self.sandbox = sandbox
         self.european = european
         self.partner_id = partner_id
-        self.token = None
+        self.oauth = oauth
         self._session = requests.Session()
-
-        if oauth:
-            url = self.get_url("oauth/token", rest=True)
-
-            resp = self._request(
-                "POST",
-                url,
-                headers={
-                    "content-type": "application/x-www-form-urlencoded",
-                },
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": self.username,
-                    "client_secret": self.password,
-                },
-            )
-            self.token = resp.json()["access_token"]
 
         adapter = requests.adapters.HTTPAdapter(max_retries=1) # Try again in the case the TCP socket closes
         self._session.mount('https://', adapter)
+            
 
     @staticmethod
     def from_config(config):
@@ -80,11 +64,25 @@ class Client:
 
     @property
     def rest_headers(self):
-        if self.token:
+        if self.oauth:
+            url = self.get_url("oauth/token", rest=True)
+
+            resp = self._request(
+                "POST",
+                url,
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                },
+                data={
+                    "grant_type": "client_credentials",
+                    "client_id": self.username,
+                    "client_secret": self.password,
+                },
+            )
             return {
                 "Content-Type": "application/json",
                 "authorization": "Bearer {}".format(
-                    self.token
+                    resp.json()["access_token"]
                 ),
             }
         return {

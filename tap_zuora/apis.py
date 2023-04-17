@@ -25,8 +25,7 @@ APIS = {
 def selected_fields(stream):
     mdata = metadata.to_map(stream['metadata'])
     fields = [f for f in stream["schema"]["properties"].keys()
-              if metadata.get(mdata, ('properties', f), 'selected')
-              or metadata.get(mdata, ('properties', f), 'inclusion') == 'automatic']
+              if metadata.get(mdata, ('properties', f), 'selected')]
 
     # Remove Deleted from the query if its selected
     if 'Deleted' in fields:
